@@ -32,9 +32,7 @@ class Consumption:
 
 consumptions = []
 
-CONSUME_EMOJI = discord.utils.get(client.get_all_emojis(), name="mao")
-
-print(CONSUME_EMOJI)
+CONSUME_EMOJI = "mao"
 
 @client.event
 async def on_message(message):
@@ -44,14 +42,15 @@ async def on_message(message):
 
     if message.content.startswith('!consume'):
         args = message.content.split()[1:]
-        if (args[0] == "help"):
+        if (len(args) == 0 or args[0] == "help"):
             msg = "Consumption syntax: !consume <time> [location] [comment]"
             await client.send_message(message.channel, msg)
         else:
             consumptions.append(Consumption([str(message.author.nick)], args[0], location=(args[1] if len(args) >= 2 else ""), comment = (" ".join(args[2:]) if len(args) >= 3 else "")))
             msg = consumptions[-1].print_consumption()
             consumptions[-1].add_message(await client.send_message(message.channel, msg))
-            await client.add_reaction(consumptions[-1].message, "mao")
+            emoji = discord.utils.get(client.get_all_emojis(), name=CONSUME_EMOJI)
+            await client.add_reaction(consumptions[-1].message, emoji)
 
 @client.event
 async def on_ready():
