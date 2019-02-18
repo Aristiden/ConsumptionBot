@@ -7,13 +7,16 @@ client = discord.Client()
 
 class Consumption:
 
-    def __init__(self, consumers, time, location=""):
+    def __init__(self, message, consumers, time, location=""):
+        self.message = message
         self.consumers = consumers
         self.time = time
         self.location = location
 
     def add_consumer(self, consumer):
-        self.consumers.append(consumer)
+        if (consumer == client.user):
+            return
+        self.consumers.append(consumer.split('#')[0])
 
     def print_consumption(self):
         to_ret = "Consume @" + self.time + "\n"
@@ -35,7 +38,7 @@ async def on_message(message):
         if (args[0] == "help"):
             msg = "Consumption syntax: !consume <time> [location]"
         else:
-            consumptions.append(Consumption([str(message.author)], args[0], location=(args[1] if len(args) == 2 else "")))
+            consumptions.append(Consumption(message, [str(message.author).split('#')[0]], args[0], location=(args[1] if len(args) == 2 else "")))
             msg = consumptions[-1].print_consumption()
         await client.send_message(message.channel, msg)
 
@@ -47,3 +50,4 @@ async def on_ready():
     print('------')
 
 client.run(TOKEN)
+print("hi")
