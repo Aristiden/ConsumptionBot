@@ -16,7 +16,7 @@ class Consumption:
     def add_consumer(self, consumer):
         if (consumer == client.user):
             return
-        self.consumers.append(consumer.split('#')[0])
+        self.consumers.append(consumer.nick)
 
     def print_consumption(self):
         to_ret = "Consume @" + self.time + "\n"
@@ -48,10 +48,10 @@ async def on_message(message):
             msg = "Consumption syntax: !consume <time> [location] [comment]"
             await client.send_message(message.channel, msg)
         else:
-            consumptions.append(Consumption([str(message.author).split('#')[0]], args[0], location=(args[1] if len(args) <= 2 else ""), comment = (" ".join(args[2:]) if len(args) <= 3 else "")))
+            consumptions.append(Consumption([str(message.author.nick)], args[0], location=(args[1] if len(args) >= 2 else ""), comment = (" ".join(args[2:]) if len(args) >= 3 else "")))
             msg = consumptions[-1].print_consumption()
             consumptions[-1].add_message(await client.send_message(message.channel, msg))
-            await client.add_reaction(consumptions[-1].message, CONSUME_EMOJI)
+            await client.add_reaction(consumptions[-1].message, "mao")
 
 @client.event
 async def on_ready():
