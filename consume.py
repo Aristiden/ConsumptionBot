@@ -1,5 +1,6 @@
 # Work with Python 3.6
 import discord
+import random
 
 with open('token.txt', 'r') as f:
     TOKEN = f.read().strip()
@@ -123,6 +124,15 @@ class Communism(Command):
                 msg += "*" + REPLACEMENTS[word.lower()] + " "
         if msg != "":
             await client.send_message(message.channel, msg)
+
+class RandomMao(Command):
+
+    async def on_message(self, message):
+        if message.author == client.user:
+            return
+        if random.random() < .05:
+            emoji = discord.utils.get(client.get_all_emojis(), name="mao")
+            await client.add_reaction(message, emoji)
 
 class Consumption:
 
