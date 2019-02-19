@@ -150,8 +150,8 @@ class Cowsay(Command):
             sys.stdout = old_stdout
             msg = "```" + mystdout.getvalue() + "```"
             for i in range(len(msg)):
-                if msg[i] == '/':
-                    msg = msg[:i + 1] + '\n' + ((7 + len(say) - 2) * ' ') + msg[i + 1:]
+                if msg[i] == '/' and msg[i - 1] == '\\':
+                    msg = msg[:i + 1] + '\\\n' + ((7 + (len(say) if len(say) < 49 else 49) - 2) * ' ') + msg[i + 1:]
                     break
             await client.send_message(message.channel, msg)
 
