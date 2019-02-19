@@ -39,8 +39,6 @@ class Consumption:
 consumptions = []
 
 CONSUME_EMOJI = "mao"
-UPVOTE = "upvote"
-DOWNVOTE = "downvote"
 
 def get_consumption_by_message(message):
     for con in consumptions:
@@ -50,11 +48,6 @@ def get_consumption_by_message(message):
 
 @client.event
 async def on_message(message):
-    upvote = discord.utils.get(client.get_all_emojis(), name=UPVOTE)
-    downvote = discord.utils.get(client.get_all_emojis(), name=DOWNVOTE)
-    await client.add_reaction(message, upvote)
-    await client.add_reaction(message, downvote)
-    
     if message.author == client.user:
         return
 
@@ -85,12 +78,7 @@ async def on_ready():
 async def on_reaction_add(reaction, user):
     if user == client.user:
         return
-    upvote = discord.utils.get(client.get_all_emojis(), name=UPVOTE)
-    downvote = discord.utils.get(client.get_all_emojis(), name=DOWNVOTE)
-    if reaction.emoji == upvote:
-        await client.remove_reaction(reaction.message, upvote, client.user)
-    elif reaction.emoji == downvote:
-        await client.remove_reaction(reaction.message, downvote, client.user)
+
     if reaction.message.author == client.user:
         consumption = get_consumption_by_message(reaction.message)
         if consumption == None:
@@ -105,11 +93,7 @@ async def on_reaction_add(reaction, user):
 async def on_reaction_remove(reaction, user):
     if user == client.user:
         return
-    upvote = discord.utils.get(client.get_all_emojis(), name=UPVOTE)
-    downvote = discord.utils.get(client.get_all_emojis(), name=DOWNVOTE)
-    if reaction.emoji == upvote or reaction.emoji == downvote:
-        if len(get_reaction_users(reaction)) == 0:
-            await client.add_reaction(reaction.message, reaction.emoji)
+
     if reaction.message.author == client.user:
         consumption = get_consumption_by_message(reaction.message)
         if consumption == None:
