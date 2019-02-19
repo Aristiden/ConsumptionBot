@@ -114,11 +114,11 @@ class CollegeChants(Command):
 class Communism(Command):
 
     async def on_message(self, message):
-        if message.author == user.client:
+        if message.author == client.user:
             return
         bad_words = list(REPLACEMENTS.keys())
         msg = ""
-        for word in message.split():
+        for word in message.content.split():
             if word.lower() in bad_words:
                 msg += "*" + REPLACEMENTS[word.lower()] + " "
         await client.send_message(message.channel, msg)
@@ -170,7 +170,7 @@ class Consumption:
 
 consumptions = []
 
-REPLACEMENTS = {"my": "our", "i": "we"}
+REPLACEMENTS = {"my": "our", "i": "we", "me": "us"}
 
 CONSUME_EMOJI = "mao"
 LATE_EMOJI = "daddyloh"
