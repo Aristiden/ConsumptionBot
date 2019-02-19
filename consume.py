@@ -63,6 +63,8 @@ class Consume(Command):
                     await client.edit_message(consumption.message, consumption.print_consumption())
             elif reaction.emoji == late_emoji:
                 consumption.add_late_consumer(user)
+                if len(consumption.lates) > 0:
+                    await client.remove_reaction(consumption.message, late_emoji, client.user)
                 await client.edit_message(consumption.message, consumption.print_consumption())
             elif reaction.emoji == cancel_emoji and user == consumption.author:
                 await client.delete_message(consumption.message)
@@ -85,6 +87,8 @@ class Consume(Command):
                 await client.edit_message(consumption.message, consumption.print_consumption())
             elif reaction.emoji == late_emoji:
                 consumption.remove_late_consumer(user)
+                if len(consumption.lates) == 0:
+                    await client.add_reaction(consumption.message, late_emoji)
                 await client.edit_message(consumption.message, consumption.print_consumption())
 
 class CollegeChants:
