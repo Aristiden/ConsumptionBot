@@ -1,6 +1,9 @@
 # Work with Python 3.6
 import discord
 import random
+import cowsay
+from io import StringIO
+import sys
 
 with open('token.txt', 'r') as f:
     TOKEN = f.read().strip()
@@ -134,6 +137,24 @@ class RandomMao(Command):
             emoji = discord.utils.get(client.get_all_emojis(), name="mao")
             await client.add_reaction(message, emoji)
 
+class Cowsay(Command):
+
+    async def on_message(self, message):
+        if message.author == client.user:
+            return
+        if message.content.lower().startswith("!cowsay"):
+            say =  message.content[8:]
+            old_stdout = sys.stdout
+            sys.stdout = mystdout = StringIO()
+            cowsay.cow(say)
+            sys.stdout = old_stdout
+            msg = "```" + mystdout.getvalue() + "```"
+            for i in range(len(msg)):
+                if msg[i] == '/':
+                    msg = msg[:i + 1] + '\n' + ((7 + len(say) - 2) * ' ') + msg[i + 1:]
+                    break
+            await client.send_message(message.channel, msg)
+
 class Consumption:
 
     def __init__(self, author, time, location="", comment=""):
@@ -187,7 +208,7 @@ CONSUME_EMOJI = "mao"
 LATE_EMOJI = "daddyloh"
 CANCEL_EMOJI = "downmao"
 
-commands = [Consume(), CollegeChants(), RandomMao()]
+commands = [Consume(), CollegeChants(), RandomMao(), Cowsay()]
 
 def get_consumption_by_message(message):
     for con in consumptions:
