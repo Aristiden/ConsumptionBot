@@ -187,7 +187,7 @@ CONSUME_EMOJI = "mao"
 LATE_EMOJI = "daddyloh"
 CANCEL_EMOJI = "downmao"
 
-commands = [Consume(), CollegeChants()]
+commands = [Consume(), CollegeChants(), RandomMao()]
 
 def get_consumption_by_message(message):
     for con in consumptions:
