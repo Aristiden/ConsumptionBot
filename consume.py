@@ -17,10 +17,11 @@ class Consumption:
         if (consumer == client.user):
             return
         self.consumers.append(consumer.nick)
+        self.consumers = set(self.consumers)
 
     def print_consumption(self):
-        to_ret = "Consume @" + self.time + "\n"
-        to_ret += "Consumers: " + " ".join(self.consumers)
+        to_ret = "Consume at " + self.time + "\n"
+        to_ret += "Consumers: " + ", ".join(self.consumers)
         if self.location != "":
             to_ret += "\nLocation: " + self.location
         if self.comment != "":
@@ -34,6 +35,12 @@ consumptions = []
 
 CONSUME_EMOJI = "mao"
 
+def get_consumption_by_message(message):
+    for con in consumptions:
+        if message.id == con.message.id:
+            return con
+    return None
+
 @client.event
 async def on_message(message):
     # we do not want the bot to reply to itself
@@ -41,6 +48,10 @@ async def on_message(message):
         return
 
     if message.content.startswith('!consume'):
+        if '@' in message.content:
+            msg = "Hey don't do that"
+            await client.send_message(message.channel, msg)
+            return
         args = message.content.split()[1:]
         if (len(args) == 0 or args[0] == "help"):
             msg = "Consumption syntax: !consume <time> [location] [comment]"
@@ -58,6 +69,22 @@ async def on_ready():
     print(client.user.name)
     print(client.user.id)
     print('------')
+
+@client.event
+async def on_reaction_add(reaction, user):
+    print("rteaction")
+    if user == client.user:
+        return
+    if reaction.message.author == client.user:
+        print("in in")
+        consumption = get_consumption_by_message(reaction.message)
+        if consumption == None:
+            return
+        emoji = discord.utils.get(client.get_all_emojis(), name=CONSUME_EMOJI)
+        print(reaction.emoji == emoji)
+        if reaction.emoji == emoji:
+            consumption.add_consumer(user)
+            await client.edit_message(consumption.message, consumption.print_consumption())
 
 client.run(TOKEN)
 print("hi")
