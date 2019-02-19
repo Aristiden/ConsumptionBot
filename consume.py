@@ -192,6 +192,14 @@ class Kenobi(Command):
         if "hello there" in message.content.lower():
             await client.send_message(message.channel, "General Kenobi")
 
+class Wack(Command):
+
+    async def on_message(self, message):
+        if message.author == client.user:
+            return
+        if "wack" in message.content.lower():
+            await client.send_file(message.channel, "wack.png")
+
 class Consumption:
 
     def __init__(self, author, time, location="", comment=""):
@@ -245,7 +253,7 @@ CONSUME_EMOJI = "mao"
 LATE_EMOJI = "daddyloh"
 CANCEL_EMOJI = "downmao"
 
-commands = [Consume(), CollegeChants(), RandomMao(), Cowsay(), Roll(), Kenobi()]
+commands = [Consume(), CollegeChants(), RandomMao(), Cowsay(), Roll(), Kenobi(), Wack()]
 
 def get_consumption_by_message(message):
     for con in consumptions:
