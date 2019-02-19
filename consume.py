@@ -170,7 +170,7 @@ class Consumption:
 
 consumptions = []
 
-REPLACEMENTS = {"my": "our", "i": "we", "me": "us"}
+REPLACEMENTS = {"my": "our", "i": "we", "me": "us", "mine": "ours"}
 
 CONSUME_EMOJI = "mao"
 LATE_EMOJI = "daddyloh"
