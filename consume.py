@@ -52,7 +52,7 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    if message.content.startswith('!consume'):
+    if message.content.startswith('!consume') and (message.channel.name == 'consumption' or message.channel.name == 'bot-testing'):
         if '@' in message.content:
             msg = "Hey don't do that"
             await client.send_message(message.channel, msg)
