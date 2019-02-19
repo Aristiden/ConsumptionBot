@@ -59,7 +59,7 @@ class Consume(Command):
                         consumption.add_consumer(user)
                 else:
                     consumption.add_consumer(user)
-                    await client.edit_message(consumption.message, consumption.print_consumption())
+                await client.edit_message(consumption.message, consumption.print_consumption())
                 if len(consumption.consumers) > 0:
                     await client.remove_reaction(consumption.message, emoji, client.user)
             elif reaction.emoji == late_emoji:
@@ -121,7 +121,8 @@ class Communism(Command):
         for word in message.content.split():
             if word.lower() in bad_words:
                 msg += "*" + REPLACEMENTS[word.lower()] + " "
-        await client.send_message(message.channel, msg)
+        if msg != "":
+            await client.send_message(message.channel, msg)
 
 class Consumption:
 
@@ -170,7 +171,7 @@ class Consumption:
 
 consumptions = []
 
-REPLACEMENTS = {"my": "our", "i": "we", "me": "us"}
+REPLACEMENTS = {"my": "our", "i": "we", "me": "us", "mine": "ours"}
 
 CONSUME_EMOJI = "mao"
 LATE_EMOJI = "daddyloh"
@@ -190,7 +191,7 @@ def get_consumption_by_message(message):
 async def on_message(message):
     await consume_command.on_message(message)
     await chants.on_message(message)
-    await comm.on_message(message)
+    #await comm.on_message(message)
     
 @client.event
 async def on_ready():
