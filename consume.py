@@ -172,7 +172,7 @@ class Roll(Command):
                     die_str = die_str[1:]
                 die = int(die_str)
                 if die < 1:
-                    msg = die + " is not a die."
+                    msg = str(die) + " is not a die."
                 else:
                     roll = random.randint(1, die)
                     msg = "It's " + str(roll) + "."
