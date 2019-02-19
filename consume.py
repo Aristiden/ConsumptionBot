@@ -123,12 +123,12 @@ class Consumption:
         self.consumers = list(set(self.consumers))
 
     def add_late_consumer(self, consumer):
-        if (consumer == client.user):
+        if consumer == client.user:
             return
         self.lates.append(consumer)
 
     def remove_late_consumer(self, consumer):
-        if (consumer == client.user):
+        if consumer == client.user:
             return
         self.lates.remove(consumer)
 
@@ -141,7 +141,7 @@ class Consumption:
         to_ret = "Consume at " + self.time + "\n"
         to_ret += "Consumers: " + (", ".join([con.display_name for con in self.consumers]) if len(self.consumers) > 0 else "No one yet")
         if len(self.lates) != 0:
-            to_ret += "\nLate Consumers: " + ", ".join(self.lates)
+            to_ret += "\nLate Consumers: " + ", ".join([late.display_name for late in self.lates])
         if self.location != "":
             to_ret += "\nLocation: " + self.location
         if self.comment != "":
