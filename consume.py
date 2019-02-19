@@ -150,9 +150,38 @@ class Cowsay(Command):
             sys.stdout = old_stdout
             msg = "```" + mystdout.getvalue() + "```"
             for i in range(len(msg)):
-                if msg[i] == '/':
-                    msg = msg[:i + 1] + '\n' + ((7 + len(say) - 2) * ' ') + msg[i + 1:]
+                if msg[i] == '/' and msg[i - 1] == '\\':
+                    msg = msg[:i + 1] + '\\\n' + ((7 + (len(say) if len(say) < 49 else 49) - 2) * ' ') + msg[i + 1:]
                     break
+            await client.send_message(message.channel, msg)
+
+class Roll(Command):
+
+    async def on_message(self, message):
+        if message.author == client.user:
+            return
+        if message.content.lower().startswith("!roll"):
+            try:
+                try:
+                    die_str = message.content.split()[1]
+                except IndexError:
+                    msg = "Syntax is !roll d<number>."
+                    await client.send_message(message.channel, msg)
+                    return
+                if die_str[0] == 'd':
+                    die_str = die_str[1:]
+                die = int(die_str)
+                if die < 1:
+                    msg = str(die) + " is not a die."
+                else:
+                    roll = random.randint(1, die)
+                    msg = "It's " + str(roll) + "."
+                    if roll == 1:
+                        msg += " Sucks to be you."
+                    elif roll == die:
+                        msg += " Crit!"                    
+            except ValueError:
+                msg = "Please input a number next time."
             await client.send_message(message.channel, msg)
 
 class Consumption:
@@ -208,7 +237,7 @@ CONSUME_EMOJI = "mao"
 LATE_EMOJI = "daddyloh"
 CANCEL_EMOJI = "downmao"
 
-commands = [Consume(), CollegeChants(), RandomMao(), Cowsay()]
+commands = [Consume(), CollegeChants(), RandomMao(), Cowsay(), Roll()]
 
 def get_consumption_by_message(message):
     for con in consumptions:
