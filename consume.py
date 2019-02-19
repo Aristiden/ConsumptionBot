@@ -92,7 +92,7 @@ class Consume(Command):
                     await client.add_reaction(consumption.message, late_emoji)
                 await client.edit_message(consumption.message, consumption.print_consumption())
 
-class CollegeChants:
+class CollegeChants(Command):
 
     async def on_message(self, message):
         if message.author == client.user:
@@ -110,6 +110,18 @@ class CollegeChants:
 
         if msg != "":
             await client.send_message(message.channel, msg)
+
+class Communism(Command):
+
+    async def on_message(self, message):
+        if message.author == user.client:
+            return
+        bad_words = list(REPLACEMENTS.keys())
+        msg = ""
+        for word in message.split():
+            if word.lower() in bad_words:
+                msg += "*" + REPLACEMENTS[word.lower()] + " "
+        await client.send_message(message.channel, msg)
 
 class Consumption:
 
@@ -158,12 +170,15 @@ class Consumption:
 
 consumptions = []
 
+REPLACEMENTS = {"my": "our", "i": "we"}
+
 CONSUME_EMOJI = "mao"
 LATE_EMOJI = "daddyloh"
 CANCEL_EMOJI = "downmao"
 
 consume_command = Consume()
 chants = CollegeChants()
+comm = Communism()
 
 def get_consumption_by_message(message):
     for con in consumptions:
@@ -175,6 +190,7 @@ def get_consumption_by_message(message):
 async def on_message(message):
     await consume_command.on_message(message)
     await chants.on_message(message)
+    await comm.on_message(message)
     
 @client.event
 async def on_ready():
