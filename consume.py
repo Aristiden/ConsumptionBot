@@ -197,7 +197,7 @@ class Wack(Command):
     async def on_message(self, message):
         if message.author == client.user:
             return
-        if message.content.lower().startswith("!wack"):
+        if "wack" in message.content.lower():
             await client.send_file(message.channel, "wack.png")
 
 class Consumption:
