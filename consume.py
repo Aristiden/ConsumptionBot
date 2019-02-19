@@ -143,7 +143,7 @@ class Cowsay(Command):
         if message.author == client.user:
             return
         if message.content.lower().startswith("!cowsay"):
-            say =  message.content[8:]
+            say =  " ".join(message.content.split()[1:])
             old_stdout = sys.stdout
             sys.stdout = mystdout = StringIO()
             cowsay.cow(say)
