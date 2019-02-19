@@ -40,6 +40,7 @@ class Consume(Command):
                 late_emoji = discord.utils.get(client.get_all_emojis(), name=LATE_EMOJI)
                 await client.add_reaction(consumptions[-1].message, emoji)
                 await client.add_reaction(consumptions[-1].message, late_emoji)
+                await client.delete_message(message)
 
     async def on_reaction_add(self, reaction, user):
         if user == client.user:
@@ -54,6 +55,8 @@ class Consume(Command):
             cancel_emoji = discord.utils.get(client.get_all_emojis(), name=CANCEL_EMOJI)
             if reaction.emoji == emoji:
                 if user == consumption.author:
+                    if consumption.author not in consumption.consumers:
+                        consumption.add_consumer(user)
                     await client.remove_reaction(consumption.message, emoji, client.user)
                 else:
                     consumption.add_consumer(user)
@@ -76,6 +79,8 @@ class Consume(Command):
             emoji = discord.utils.get(client.get_all_emojis(), name=CONSUME_EMOJI)
             late_emoji = discord.utils.get(client.get_all_emojis(), name=LATE_EMOJI)
             if reaction.emoji == emoji:
+                if user == consumption.author:
+                    await client.add_reaction(consumption.message, emoji)
                 consumption.remove_consumer(user)
                 await client.edit_message(consumption.message, consumption.print_consumption())
             elif reaction.emoji == late_emoji:
