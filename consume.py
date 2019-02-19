@@ -1,7 +1,8 @@
 # Work with Python 3.6
 import discord
 
-TOKEN = 'NTQ3MTgxMDcxNjMzMDg4NTEy.D0zGKA.Z97_Zz1rm3cqdVCOdMrH_VT6TCc'
+with open('token.txt', 'r') as f:
+    TOKEN = f.read().strip()
 
 client = discord.Client()
 
@@ -51,7 +52,7 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    if message.content.startswith('!consume'):
+    if message.content.startswith('!consume') and (message.channel.name == 'consumption' or message.channel.name == 'bot-testing'):
         if '@' in message.content:
             msg = "Hey don't do that"
             await client.send_message(message.channel, msg)
@@ -84,7 +85,6 @@ async def on_reaction_add(reaction, user):
         if consumption == None:
             return
         emoji = discord.utils.get(client.get_all_emojis(), name=CONSUME_EMOJI)
-        print(reaction.emoji == emoji)
         if reaction.emoji == emoji:
             consumption.add_consumer(user)
             await client.edit_message(consumption.message, consumption.print_consumption())
@@ -99,10 +99,9 @@ async def on_reaction_remove(reaction, user):
         if consumption == None:
             return
         emoji = discord.utils.get(client.get_all_emojis(), name=CONSUME_EMOJI)
-        print(reaction.emoji == emoji)
+        
         if reaction.emoji == emoji:
             consumption.remove_consumer(user)
             await client.edit_message(consumption.message, consumption.print_consumption())
 
 client.run(TOKEN)
-print("hi")
