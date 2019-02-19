@@ -9,13 +9,13 @@ client = discord.Client()
 
 class Command:
 
-    def on_message(self, message):
+    async def on_message(self, message):
         pass
 
-    def on_reaction_add(self, reaction, user):
+    async def on_reaction_add(self, reaction, user):
         pass
 
-    def on_reaction_remove(self, reaction, user):
+    async def on_reaction_remove(self, reaction, user):
         pass
 
 class Consume(Command):
