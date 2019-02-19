@@ -57,12 +57,15 @@ class Consume(Command):
                 if user == consumption.author:
                     if consumption.author not in consumption.consumers:
                         consumption.add_consumer(user)
-                    await client.remove_reaction(consumption.message, emoji, client.user)
                 else:
                     consumption.add_consumer(user)
                     await client.edit_message(consumption.message, consumption.print_consumption())
+                if len(consumption.consumers) > 0:
+                    await client.remove_reaction(consumption.message, emoji, client.user)
             elif reaction.emoji == late_emoji:
                 consumption.add_late_consumer(user)
+                if len(consumption.lates) > 0:
+                    await client.remove_reaction(consumption.message, late_emoji, client.user)
                 await client.edit_message(consumption.message, consumption.print_consumption())
             elif reaction.emoji == cancel_emoji and user == consumption.author:
                 await client.delete_message(consumption.message)
@@ -79,12 +82,14 @@ class Consume(Command):
             emoji = discord.utils.get(client.get_all_emojis(), name=CONSUME_EMOJI)
             late_emoji = discord.utils.get(client.get_all_emojis(), name=LATE_EMOJI)
             if reaction.emoji == emoji:
-                if user == consumption.author:
-                    await client.add_reaction(consumption.message, emoji)
                 consumption.remove_consumer(user)
+                if len(consumption.consumers) == 0:
+                    await client.add_reaction(consumption.message, emoji)
                 await client.edit_message(consumption.message, consumption.print_consumption())
             elif reaction.emoji == late_emoji:
                 consumption.remove_late_consumer(user)
+                if len(consumption.lates) == 0:
+                    await client.add_reaction(consumption.message, late_emoji)
                 await client.edit_message(consumption.message, consumption.print_consumption())
 
 class CollegeChants:
@@ -123,12 +128,12 @@ class Consumption:
         self.consumers = list(set(self.consumers))
 
     def add_late_consumer(self, consumer):
-        if (consumer == client.user):
+        if consumer == client.user:
             return
         self.lates.append(consumer)
 
     def remove_late_consumer(self, consumer):
-        if (consumer == client.user):
+        if consumer == client.user:
             return
         self.lates.remove(consumer)
 
@@ -141,7 +146,7 @@ class Consumption:
         to_ret = "Consume at " + self.time + "\n"
         to_ret += "Consumers: " + (", ".join([con.display_name for con in self.consumers]) if len(self.consumers) > 0 else "No one yet")
         if len(self.lates) != 0:
-            to_ret += "\nLate Consumers: " + ", ".join(self.lates)
+            to_ret += "\nLate Consumers: " + ", ".join([late.display_name for late in self.lates])
         if self.location != "":
             to_ret += "\nLocation: " + self.location
         if self.comment != "":
