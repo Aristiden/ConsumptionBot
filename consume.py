@@ -121,7 +121,8 @@ class Communism(Command):
         for word in message.content.split():
             if word.lower() in bad_words:
                 msg += "*" + REPLACEMENTS[word.lower()] + " "
-        await client.send_message(message.channel, msg)
+        if msg != "":
+            await client.send_message(message.channel, msg)
 
 class Consumption:
 
@@ -190,7 +191,7 @@ def get_consumption_by_message(message):
 async def on_message(message):
     await consume_command.on_message(message)
     await chants.on_message(message)
-    await comm.on_message(message)
+    #await comm.on_message(message)
     
 @client.event
 async def on_ready():
