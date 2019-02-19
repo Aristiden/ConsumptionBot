@@ -33,7 +33,7 @@ class Consume(Command):
                 msg = "Consumption syntax: !consume <time> [location] [comment]"
                 await client.send_message(message.channel, msg)
             else:
-                consumptions.append(Consumption([message.author], args[0], location=(args[1] if len(args) >= 2 else ""), comment = (" ".join(args[2:]) if len(args) >= 3 else "")))
+                consumptions.append(Consumption(message.author, args[0], location=(args[1] if len(args) >= 2 else ""), comment = (" ".join(args[2:]) if len(args) >= 3 else "")))
                 msg = consumptions[-1].print_consumption()
                 consumptions[-1].add_message(await client.send_message(message.channel, msg))
                 emoji = discord.utils.get(client.get_all_emojis(), name=CONSUME_EMOJI)
@@ -51,13 +51,20 @@ class Consume(Command):
                 return
             emoji = discord.utils.get(client.get_all_emojis(), name=CONSUME_EMOJI)
             late_emoji = discord.utils.get(client.get_all_emojis(), name=LATE_EMOJI)
+            cancel_emoji = discord.utils.get(client.get_all_emojis(), name=CANCEL_EMOJI)
             if reaction.emoji == emoji:
-                consumption.add_consumer(user)
-                await client.edit_message(consumption.message, consumption.print_consumption())
+                if user == consumption.author:
+                    await client.remove_reaction(consumption.message, emoji, client.user)
+                else:
+                    consumption.add_consumer(user)
+                    await client.edit_message(consumption.message, consumption.print_consumption())
             elif reaction.emoji == late_emoji:
                 consumption.add_late_consumer(user)
                 await client.edit_message(consumption.message, consumption.print_consumption())
-
+            elif reaction.emoji == cancel_emoji and user == consumption.author:
+                await client.delete_message(consumption.message)
+                consumptions.remove(consumption)
+                
     async def on_reaction_remove(self, reaction, user):
         if user == client.user:
             return
@@ -96,8 +103,9 @@ class CollegeChants:
 
 class Consumption:
 
-    def __init__(self, consumers, time, location="", comment=""):
-        self.consumers = consumers
+    def __init__(self, author, time, location="", comment=""):
+        self.author = author
+        self.consumers = [author]
         self.time = time
         self.location = location
         self.comment = comment
@@ -142,6 +150,7 @@ consumptions = []
 
 CONSUME_EMOJI = "mao"
 LATE_EMOJI = "daddyloh"
+CANCEL_EMOJI = "downmao"
 
 consume_command = Consume()
 chants = CollegeChants()
