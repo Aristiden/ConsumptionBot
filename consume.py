@@ -177,9 +177,7 @@ CONSUME_EMOJI = "mao"
 LATE_EMOJI = "daddyloh"
 CANCEL_EMOJI = "downmao"
 
-consume_command = Consume()
-chants = CollegeChants()
-comm = Communism()
+commands = [Consume(), CollegeChants()]
 
 def get_consumption_by_message(message):
     for con in consumptions:
@@ -189,9 +187,8 @@ def get_consumption_by_message(message):
 
 @client.event
 async def on_message(message):
-    await consume_command.on_message(message)
-    await chants.on_message(message)
-    #await comm.on_message(message)
+    for comm in commands:
+        await comm.on_message(message)
     
 @client.event
 async def on_ready():
@@ -202,10 +199,12 @@ async def on_ready():
 
 @client.event
 async def on_reaction_add(reaction, user):
-    await consume_command.on_reaction_add(reaction, user)
+    for comm in commands:
+        await comm.on_reaction_add(reaction, user)
     
 @client.event
 async def on_reaction_remove(reaction, user):
-    await consume_command.on_reaction_remove(reaction, user)
+    for comm in commands:
+        await comm.on_reaction_remove(reaction, user)
     
 client.run(TOKEN)
