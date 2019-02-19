@@ -6,6 +6,85 @@ with open('token.txt', 'r') as f:
 
 client = discord.Client()
 
+class Command:
+
+    def on_message(self, message):
+        pass
+
+    def on_reaction_add(self, reaction, user):
+        pass
+
+    def on_reaction_remove(self, reaction, user):
+        pass
+
+class Consume(Command):
+
+    async def on_message(self, message):
+        if message.author == client.user:
+            return
+
+        if message.content.startswith('!consume') and (message.channel.name == 'consumption' or message.channel.name == 'bot-testing'):
+            if '@' in message.content:
+                msg = "Hey don't do that"
+                await client.send_message(message.channel, msg)
+                return
+            args = message.content.split()[1:]
+            if (len(args) == 0 or args[0] == "help"):
+                msg = "Consumption syntax: !consume <time> [location] [comment]"
+                await client.send_message(message.channel, msg)
+            else:
+                consumptions.append(Consumption([str(message.author.nick)], args[0], location=(args[1] if len(args) >= 2 else ""), comment = (" ".join(args[2:]) if len(args) >= 3 else "")))
+                msg = consumptions[-1].print_consumption()
+                consumptions[-1].add_message(await client.send_message(message.channel, msg))
+                emoji = discord.utils.get(client.get_all_emojis(), name=CONSUME_EMOJI)
+                await client.add_reaction(consumptions[-1].message, emoji)
+
+    async def on_reaction_add(self, reaction, user):
+        if user == client.user:
+            return
+
+        if reaction.message.author == client.user:
+            consumption = get_consumption_by_message(reaction.message)
+            if consumption == None:
+                return
+            emoji = discord.utils.get(client.get_all_emojis(), name=CONSUME_EMOJI)
+            if reaction.emoji == emoji:
+                consumption.add_consumer(user)
+                await client.edit_message(consumption.message, consumption.print_consumption())
+
+    async def on_reaction_remove(self, reaction, user):
+        if user == client.user:
+            return
+
+        if reaction.message.author == client.user:
+            consumption = get_consumption_by_message(reaction.message)
+            if consumption == None:
+                return
+            emoji = discord.utils.get(client.get_all_emojis(), name=CONSUME_EMOJI)
+            
+            if reaction.emoji == emoji:
+                consumption.remove_consumer(user)
+                await client.edit_message(consumption.message, consumption.print_consumption())
+
+class CollegeChants:
+
+    async def on_message(self, message):
+        if message.author == client.user:
+            return
+
+        msg = ""
+        if message.content.upper().startswith('!ENGR'):
+            msg = "BETTER THAN YOU ARE"
+        elif message.content.upper().startswith('!CMNS'):
+            msg = "C-M-N-*yesssssss*"
+        elif message.content.upper().startswith('!BSOS'):
+            msg = "WHAT KIND OF SAUCE? B-SAUCE"
+        elif message.content.upper().startswith('!ARHU'):
+            msg = "i have no idea"
+
+        if msg != "":
+            await client.send_message(message.channel, msg)
+
 class Consumption:
 
     def __init__(self, consumers, time, location="", comment=""):
@@ -41,6 +120,9 @@ consumptions = []
 
 CONSUME_EMOJI = "mao"
 
+consume_command = Consume()
+chants = CollegeChants()
+
 def get_consumption_by_message(message):
     for con in consumptions:
         if message.id == con.message.id:
@@ -49,25 +131,9 @@ def get_consumption_by_message(message):
 
 @client.event
 async def on_message(message):
-    if message.author == client.user:
-        return
-
-    if message.content.startswith('!consume') and (message.channel.name == 'consumption' or message.channel.name == 'bot-testing'):
-        if '@' in message.content:
-            msg = "Hey don't do that"
-            await client.send_message(message.channel, msg)
-            return
-        args = message.content.split()[1:]
-        if (len(args) == 0 or args[0] == "help"):
-            msg = "Consumption syntax: !consume <time> [location] [comment]"
-            await client.send_message(message.channel, msg)
-        else:
-            consumptions.append(Consumption([str(message.author.nick)], args[0], location=(args[1] if len(args) >= 2 else ""), comment = (" ".join(args[2:]) if len(args) >= 3 else "")))
-            msg = consumptions[-1].print_consumption()
-            consumptions[-1].add_message(await client.send_message(message.channel, msg))
-            emoji = discord.utils.get(client.get_all_emojis(), name=CONSUME_EMOJI)
-            await client.add_reaction(consumptions[-1].message, emoji)
-
+    await consume_command.on_message(message)
+    await chants.on_message(message)
+    
 @client.event
 async def on_ready():
     print('Logged in as')
@@ -77,31 +143,10 @@ async def on_ready():
 
 @client.event
 async def on_reaction_add(reaction, user):
-    if user == client.user:
-        return
-
-    if reaction.message.author == client.user:
-        consumption = get_consumption_by_message(reaction.message)
-        if consumption == None:
-            return
-        emoji = discord.utils.get(client.get_all_emojis(), name=CONSUME_EMOJI)
-        if reaction.emoji == emoji:
-            consumption.add_consumer(user)
-            await client.edit_message(consumption.message, consumption.print_consumption())
-
+    await consume_command.on_reaction_add(reaction, user)
+    
 @client.event
 async def on_reaction_remove(reaction, user):
-    if user == client.user:
-        return
-
-    if reaction.message.author == client.user:
-        consumption = get_consumption_by_message(reaction.message)
-        if consumption == None:
-            return
-        emoji = discord.utils.get(client.get_all_emojis(), name=CONSUME_EMOJI)
-        
-        if reaction.emoji == emoji:
-            consumption.remove_consumer(user)
-            await client.edit_message(consumption.message, consumption.print_consumption())
-
+    await consume_command.on_reaction_remove(reaction, user)
+    
 client.run(TOKEN)
