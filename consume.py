@@ -172,7 +172,7 @@ class Roll(Command):
                     die_str = die_str[1:]
                 die = int(die_str)
                 if die < 1:
-                    msg = str(die) + " is not a die."
+                    msg = die + " is not a die."
                 else:
                     roll = random.randint(1, die)
                     msg = "It's " + str(roll) + "."
@@ -183,6 +183,14 @@ class Roll(Command):
             except ValueError:
                 msg = "Please input a number next time."
             await client.send_message(message.channel, msg)
+
+class Kenobi(Command):
+
+    async def on_message(self, message):
+        if message.author == client.user:
+            return
+        if "hello there" in message.content.lower():
+            await client.send_message(message.channel, "General Kenobi")
 
 class Consumption:
 
@@ -237,7 +245,7 @@ CONSUME_EMOJI = "mao"
 LATE_EMOJI = "daddyloh"
 CANCEL_EMOJI = "downmao"
 
-commands = [Consume(), CollegeChants(), RandomMao(), Cowsay(), Roll()]
+commands = [Consume(), CollegeChants(), RandomMao(), Cowsay(), Roll(), Kenobi()]
 
 def get_consumption_by_message(message):
     for con in consumptions:
