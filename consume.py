@@ -66,6 +66,25 @@ class Consume(Command):
                 consumption.remove_consumer(user)
                 await client.edit_message(consumption.message, consumption.print_consumption())
 
+class CollegeChants:
+
+    async def on_message(self, message):
+        if message.author == client.user:
+            return
+
+        msg = ""
+        if message.content.upper().startswith('!ENGR'):
+            msg = "BETTER THAN YOU ARE"
+        elif message.content.upper().startswith('!CMNS'):
+            msg = "C-M-N-*yesssssss*"
+        elif message.content.upper().startswith('!BSOS'):
+            msg = "WHAT KIND OF SAUCE? B-SAUCE"
+        elif message.content.upper().startswith('!ARHU'):
+            msg = "i have no idea"
+
+        if msg != "":
+            await client.send_message(message.channel, msg)
+
 class Consumption:
 
     def __init__(self, consumers, time, location="", comment=""):
@@ -102,6 +121,7 @@ consumptions = []
 CONSUME_EMOJI = "mao"
 
 consume_command = Consume()
+chants = CollegeChants()
 
 def get_consumption_by_message(message):
     for con in consumptions:
@@ -112,6 +132,7 @@ def get_consumption_by_message(message):
 @client.event
 async def on_message(message):
     await consume_command.on_message(message)
+    await chants.on_message(message)
     
 @client.event
 async def on_ready():
