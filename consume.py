@@ -128,7 +128,7 @@ class Consumption:
         to_ret = "Consume at " + self.time + "\n"
         to_ret += "Consumers: " + (", ".join([con.display_name for con in self.consumers]) if len(self.consumers) > 0 else "No one yet")
         if len(self.lates) != 0:
-            to_ret += "\nLate Consumers: " + ", ".join(self.lates)
+            to_ret += "\nLate Consumers: " + ", ".join([late.display_name for late in self.lates])
         if self.location != "":
             to_ret += "\nLocation: " + self.location
         if self.comment != "":
