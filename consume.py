@@ -17,11 +17,16 @@ class Consumption:
         if (consumer == client.user):
             return
         self.consumers.append(consumer.nick)
-        self.consumers = set(self.consumers)
+        self.consumers = list(set(self.consumers))
+
+    def remove_consumer(self, consumer):
+        if (consumer == client.user):
+            return
+        self.consumers.remove(consumer.nick)
 
     def print_consumption(self):
         to_ret = "Consume at " + self.time + "\n"
-        to_ret += "Consumers: " + ", ".join(self.consumers)
+        to_ret += "Consumers: " + (", ".join(self.consumers) if len(self.consumers) > 0 else "No one yet")
         if self.location != "":
             to_ret += "\nLocation: " + self.location
         if self.comment != "":
@@ -84,6 +89,21 @@ async def on_reaction_add(reaction, user):
         print(reaction.emoji == emoji)
         if reaction.emoji == emoji:
             consumption.add_consumer(user)
+            await client.edit_message(consumption.message, consumption.print_consumption())
+
+@client.event
+async def on_reaction_remove(reaction, user):
+    if user == client.user:
+        return
+    if reaction.message.author == client.user:
+        print("in in")
+        consumption = get_consumption_by_message(reaction.message)
+        if consumption == None:
+            return
+        emoji = discord.utils.get(client.get_all_emojis(), name=CONSUME_EMOJI)
+        print(reaction.emoji == emoji)
+        if reaction.emoji == emoji:
+            consumption.remove_consumer(user)
             await client.edit_message(consumption.message, consumption.print_consumption())
 
 client.run(TOKEN)
