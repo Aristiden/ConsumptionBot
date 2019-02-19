@@ -40,6 +40,7 @@ class Consume(Command):
                 late_emoji = discord.utils.get(client.get_all_emojis(), name=LATE_EMOJI)
                 await client.add_reaction(consumptions[-1].message, emoji)
                 await client.add_reaction(consumptions[-1].message, late_emoji)
+                await client.delete_message(message)
 
     async def on_reaction_add(self, reaction, user):
         if user == client.user:
