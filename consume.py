@@ -17,7 +17,7 @@ class Consumption:
     def add_consumer(self, consumer):
         if (consumer == client.user):
             return
-        self.consumers.append(consumer.nick)
+        self.consumers.append(consumer.nick if consumer.nick != None else consumer)
         self.consumers = list(set(self.consumers))
 
     def remove_consumer(self, consumer):
@@ -62,7 +62,7 @@ async def on_message(message):
             msg = "Consumption syntax: !consume <time> [location] [comment]"
             await client.send_message(message.channel, msg)
         else:
-            consumptions.append(Consumption([str(message.author.nick)], args[0], location=(args[1] if len(args) >= 2 else ""), comment = (" ".join(args[2:]) if len(args) >= 3 else "")))
+            consumptions.append(Consumption([str(message.author.nick if message.author.nick != None else message.author)], args[0], location=(args[1] if len(args) >= 2 else ""), comment = (" ".join(args[2:]) if len(args) >= 3 else "")))
             msg = consumptions[-1].print_consumption()
             consumptions[-1].add_message(await client.send_message(message.channel, msg))
             emoji = discord.utils.get(client.get_all_emojis(), name=CONSUME_EMOJI)
