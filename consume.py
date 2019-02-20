@@ -217,12 +217,16 @@ class Quote(Command):
                 quote = lastMessageAuthor.display_name+": "+lastMessageContent
                 quote = quote.split(' ')
             else:
+                if quote[1].lower() == "help":
+                    await client.send_message(message.channel, "!quote [quote]\nIf no quote provided, the last message in the channel is used")
+                    return
                 quote.pop(0)
             quoteString = ' '.join(quote)
             quotecat = datetime.now().strftime('%d %b %Y, %I:%M%p')+"\n"+quoteString
             quotecat = quotecat+"\n"
             try:
-                line_prepender("quotes.txt", quotecat)
+                if message.channel!="bot-testing":
+                    line_prepender("quotes.txt", quotecat)
                 msg = "Quote added on "+datetime.now().strftime('%d %b %Y, %I:%M%p')
                 msg += "\n```"+quoteString+"```"
             except:
