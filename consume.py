@@ -234,6 +234,25 @@ class Quote(Command):
                 msg = "Problem with quote encoding"
             await client.send_message(message.channel, msg)
             await client.delete_message(message)
+
+class GetQuote(Command):
+
+    async def on_message(self, message):
+        if message.author == client.user:
+            return
+        if message.content.lower().startswith("!getquote"):
+            content = message.content.split(' ')
+            if len(content)==1:
+                quoteFile = open("quotes.txt", "r", -1, "utf-8")
+                quoteString = quoteFile.read()
+                quoteFile.close()
+                quotes = quoteString.split("\n\n")
+                randQuote = random.choice(quotes)
+                time = randQuote.split("\n")[0]
+                randQuote = randQuote.split("\n")
+                randQuote.pop(0)
+                randQuote = "\n".join(randQuote)
+                await client.send_message(message.channel, time+"```"+randQuote+"```")
             
 
 class Consumption:
@@ -289,7 +308,7 @@ CONSUME_EMOJI = "mao"
 LATE_EMOJI = "daddyloh"
 CANCEL_EMOJI = "downmao"
 
-commands = [Consume(), CollegeChants(), RandomMao(), Cowsay(), Roll(), Kenobi(), Wack(), Quote()]
+commands = [Consume(), CollegeChants(), RandomMao(), Cowsay(), Roll(), Kenobi(), Wack(), Quote(), GetQuote()]
 
 def get_consumption_by_message(message):
     for con in consumptions:
