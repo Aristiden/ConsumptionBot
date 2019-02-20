@@ -2,6 +2,7 @@
 import discord
 import random
 import cowsay
+import re
 from datetime import datetime
 from io import StringIO
 import sys
@@ -207,12 +208,12 @@ class Quote(Command):
         if message.author == client.user:
             return
         if message.content.lower().startswith("!quote"):
-            quote = message.content.replace("```", "").split(' ')
+            quote = re.sub(r'\n+', '\n', message.content.replace("```", "")).split(' ')
             msg = ""
             if len(quote)==1:
                 client.messages.pop()
                 lastMessage = client.messages.pop()
-                lastMessageContent = lastMessage.content.replace("```", "")
+                lastMessageContent = re.sub(r'\n+', '\n', lastMessage.content.replace("```", ""))
                 lastMessageAuthor = lastMessage.author
                 quote = lastMessageAuthor.display_name+": "+lastMessageContent
                 quote = quote.split(' ')
@@ -222,13 +223,13 @@ class Quote(Command):
                     return
                 quote.pop(0)
             quoteString = ' '.join(quote)
-            quotecat = datetime.now().strftime('%d %b %Y, %I:%M%p')+"\n"+quoteString
+            quotecat = datetime.now().strftime('%d %b %Y, %I:%M%p')+'\n'+quoteString
             quotecat = quotecat+"\n"
             try:
                 if message.channel!="bot-testing":
                     line_prepender("quotes.txt", quotecat)
                 msg = "Quote added on "+datetime.now().strftime('%d %b %Y, %I:%M%p')
-                msg += "\n```"+quoteString+"```"
+                msg += "\n```\n"+quoteString+"```"
             except:
                 msg = "Problem with quote encoding"
             await client.send_message(message.channel, msg)
