@@ -138,6 +138,8 @@ class RandomMao(Command):
         if random.random() < .05:
             emoji = discord.utils.get(client.get_all_emojis(), name="mao")
             await client.add_reaction(message, emoji)
+        if random.random() < .05:
+            await client.send_typing(message.channel)
 
 class Cowsay(Command):
 
