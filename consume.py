@@ -207,12 +207,12 @@ class Quote(Command):
         if message.author == client.user:
             return
         if message.content.lower().startswith("!quote"):
-            quote = message.content.split(' ')
+            quote = message.content.replace("```", "").split(' ')
             msg = ""
             if len(quote)==1:
                 client.messages.pop()
                 lastMessage = client.messages.pop()
-                lastMessageContent = lastMessage.content
+                lastMessageContent = lastMessage.content.replace("```", "")
                 lastMessageAuthor = lastMessage.author
                 quote = lastMessageAuthor.display_name+": "+lastMessageContent
                 quote = quote.split(' ')
