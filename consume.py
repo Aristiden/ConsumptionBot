@@ -221,10 +221,12 @@ class Quote(Command):
             quoteString = ' '.join(quote)
             quotecat = datetime.now().strftime('%d %b %Y, %I:%M%p')+"\n"+quoteString
             quotecat = quotecat+"\n"
-            line_prepender("quotes.txt", "\n")
-            line_prepender("quotes.txt", quotecat)
-            msg = "Quote added on "+datetime.now().strftime('%d %b %Y, %I:%M%p')
-            msg += "\n```"+quoteString+"```"
+            try:
+                line_prepender("quotes.txt", quotecat)
+                msg = "Quote added on "+datetime.now().strftime('%d %b %Y, %I:%M%p')
+                msg += "\n```"+quoteString+"```"
+            except:
+                msg = "Problem with quote encoding"
             await client.send_message(message.channel, msg)
             await client.delete_message(message)
             
@@ -316,6 +318,6 @@ def line_prepender(filename, line):
     with open(filename, 'r+') as f:
         content = f.read()
         f.seek(0, 0)
-        f.write(line.rstrip('\r\n') + '\n' + content)
+        f.write(line + '\n' + content)
 
 client.run(TOKEN)
