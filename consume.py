@@ -2,6 +2,8 @@
 import discord
 import random
 import cowsay
+import re
+from datetime import datetime
 from io import StringIO
 import sys
 
@@ -200,6 +202,40 @@ class Wack(Command):
         if "wack" in message.content.lower():
             await client.send_file(message.channel, "wack.png")
 
+class Quote(Command):
+    
+    async def on_message(self, message):
+        if message.author == client.user:
+            return
+        if message.content.lower().startswith("!quote"):
+            quote = re.sub(r'\n+', '\n', message.content.replace("```", "")).split(' ')
+            msg = ""
+            if len(quote)==1:
+                client.messages.pop()
+                lastMessage = client.messages.pop()
+                lastMessageContent = re.sub(r'\n+', '\n', lastMessage.content.replace("```", ""))
+                lastMessageAuthor = lastMessage.author
+                quote = lastMessageAuthor.display_name+": "+lastMessageContent
+                quote = quote.split(' ')
+            else:
+                if quote[1].lower() == "help":
+                    await client.send_message(message.channel, "!quote [quote]\nIf no quote provided, the last message in the channel is used")
+                    return
+                quote.pop(0)
+            quoteString = ' '.join(quote)
+            quotecat = datetime.now().strftime('%d %b %Y, %I:%M%p')+'\n'+quoteString
+            quotecat = quotecat+"\n"
+            try:
+                if message.channel!="bot-testing":
+                    line_prepender("quotes.txt", quotecat)
+                msg = "Quote added on "+datetime.now().strftime('%d %b %Y, %I:%M%p')
+                msg += "\n```\n"+quoteString+"```"
+            except:
+                msg = "Problem with quote encoding"
+            await client.send_message(message.channel, msg)
+            await client.delete_message(message)
+            
+
 class Consumption:
 
     def __init__(self, author, time, location="", comment=""):
@@ -253,7 +289,7 @@ CONSUME_EMOJI = "mao"
 LATE_EMOJI = "daddyloh"
 CANCEL_EMOJI = "downmao"
 
-commands = [Consume(), CollegeChants(), RandomMao(), Cowsay(), Roll(), Kenobi(), Wack()]
+commands = [Consume(), CollegeChants(), RandomMao(), Cowsay(), Roll(), Kenobi(), Wack(), Quote()]
 
 def get_consumption_by_message(message):
     for con in consumptions:
@@ -282,5 +318,11 @@ async def on_reaction_add(reaction, user):
 async def on_reaction_remove(reaction, user):
     for comm in commands:
         await comm.on_reaction_remove(reaction, user)
-    
+
+def line_prepender(filename, line):
+    with open(filename, 'r+') as f:
+        content = f.read()
+        f.seek(0, 0)
+        f.write(line + '\n' + content)
+
 client.run(TOKEN)
