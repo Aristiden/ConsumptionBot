@@ -11,6 +11,9 @@ import sys
 with open('token.txt', 'r') as f:
     TOKEN = f.read().strip()
 
+with open('points.txt', 'r') as f:
+    points = int(f.read().strip())
+
 client = discord.Client(max_messages=100)
 
 class Command:
@@ -50,6 +53,8 @@ class Consume(Command):
                 await client.delete_message(message)
 
     async def on_reaction_add(self, reaction, user):
+        global points
+        
         if user == client.user:
             return
 
@@ -75,8 +80,14 @@ class Consume(Command):
                     await client.remove_reaction(consumption.message, late_emoji, client.user)
                 await client.edit_message(consumption.message, consumption.print_consumption())
             elif reaction.emoji == cancel_emoji and user == consumption.author:
-                await client.delete_message(consumption.message)
+                new_points = sum([1 for consumer in consumption.consumers]) + sum([1 for consumer in consumption.lates])
+                points += new_points
+                await client.edit_message(consumption.message, "This consumption earned " + str(new_points) +
+                                          " point" + ("" if new_points == 1 else "s") + " for the collective.\nCurrent point total: " + str(points) +
+                                          " point" + ("" if points == 1 else "s") + ".")
                 consumptions.remove(consumption)
+                with open('points.txt', 'w') as f:
+                    f.write(str(points))
                 
     async def on_reaction_remove(self, reaction, user):
         if user == client.user:
