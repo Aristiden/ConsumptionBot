@@ -232,7 +232,7 @@ class Quote(Command):
             quotecat = datetime.now(timezone('US/Eastern')).strftime('%d %b %Y, %I:%M%p')+'\n'+quoteString
             quotecat = quotecat+"\n"
             try:
-                if message.channel!="bot-testing":
+                if message.channel.name!="bot-testing":
                     line_prepender("quotes.txt", quotecat)
                 msg = "Quote added on "+datetime.now().strftime('%d %b %Y, %I:%M%p')
                 msg += "\n```\n"+quoteString+"```"
