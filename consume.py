@@ -271,6 +271,17 @@ class GetQuote(Command):
                 randQuote = "\n".join(randQuote)
                 await client.send_message(message.channel, time+"```"+randQuote+"```")
             
+class Points(Command):
+
+    async def on_message(self, message):
+        global points
+        
+        if message.author == client.user:
+            return
+
+        if message.content.lower().startswith("!points"):
+            msg = "The collective currently has " + str(points) + " point" + ("" if points == 1 else "s") + "."
+            await client.send_message(message.channel, msg)
 
 class Consumption:
 
@@ -325,7 +336,7 @@ CONSUME_EMOJI = "mao"
 LATE_EMOJI = "daddyloh"
 CANCEL_EMOJI = "downmao"
 
-commands = [Consume(), CollegeChants(), RandomMao(), Cowsay(), Roll(), Kenobi(), Wack(), Quote(), GetQuote()]
+commands = [Consume(), CollegeChants(), RandomMao(), Cowsay(), Roll(), Kenobi(), Wack(), Quote(), GetQuote(), Points()]
 
 def get_consumption_by_message(message):
     for con in consumptions:
