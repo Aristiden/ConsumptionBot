@@ -66,6 +66,8 @@ class Consume(Command):
                         consumption.add_consumer(user)
                 else:
                     consumption.add_consumer(user)
+                    if len(consumption.consumers) == 2:
+                        await client.send_message(consumption.author, "Someone has joined your consumption!")
                 await client.edit_message(consumption.message, consumption.print_consumption())
                 if user == consumption.author:
                     await client.remove_reaction(consumption.message, emoji, client.user)
@@ -277,7 +279,6 @@ class Consumption:
             return
         self.consumers.append(consumer)
         self.consumers = list(set(self.consumers))
-        (self.author).send(consumer + " has joined your consumption!")
 
 
     def add_late_consumer(self, consumer):
