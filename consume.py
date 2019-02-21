@@ -66,7 +66,7 @@ class Consume(Command):
                 else:
                     consumption.add_consumer(user)
                 await client.edit_message(consumption.message, consumption.print_consumption())
-                if len(consumption.consumers) > 0:
+                if user == consumption.author:
                     await client.remove_reaction(consumption.message, emoji, client.user)
             elif reaction.emoji == late_emoji:
                 consumption.add_late_consumer(user)
