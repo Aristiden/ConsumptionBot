@@ -213,8 +213,11 @@ class Quote(Command):
             quote = re.sub(r'\n+', '\n', message.content.replace("```", "")).split(' ')
             msg = ""
             if len(quote)==1:
-                client.messages.pop()
-                lastMessage = client.messages.pop()
+                count = 1
+                async for log in client.logs_from(message.channel, limit=2):
+                    if count>1:
+                        lastMessage = log
+                    count+=1
                 lastMessageContent = re.sub(r'\n+', '\n', lastMessage.content.replace("```", ""))
                 lastMessageAuthor = lastMessage.author
                 quote = lastMessageAuthor.display_name+": "+lastMessageContent
@@ -341,7 +344,7 @@ async def on_reaction_remove(reaction, user):
         await comm.on_reaction_remove(reaction, user)
 
 def line_prepender(filename, line):
-    with open(filename, 'r+') as f:
+    with open(filename, 'r+', -1, "utf-8") as f:
         content = f.read()
         f.seek(0, 0)
         f.write(line + '\n' + content)
