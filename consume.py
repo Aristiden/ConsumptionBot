@@ -3,6 +3,7 @@ import discord
 import random
 import cowsay
 import re
+from pytz import timezone
 from datetime import datetime
 from io import StringIO
 import sys
@@ -228,7 +229,7 @@ class Quote(Command):
                     return
                 quote.pop(0)
             quoteString = ' '.join(quote)
-            quotecat = datetime.now().strftime('%d %b %Y, %I:%M%p')+'\n'+quoteString
+            quotecat = datetime.now(timezone('US/Eastern')).strftime('%d %b %Y, %I:%M%p')+'\n'+quoteString
             quotecat = quotecat+"\n"
             try:
                 if message.channel!="bot-testing":
