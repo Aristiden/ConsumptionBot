@@ -142,7 +142,7 @@ class RandomMao(Command):
             await client.add_reaction(message, emoji)
         if random.random() < .05:
             await client.send_typing(message.channel)
-        if message.channel.name == "general" and random.random()<1:
+        if message.channel.name == "general" and random.random()< .005:
             quoteFile = open("chairman.txt", "r", -1, "utf-8")
             quoteString = quoteFile.read()
             quoteFile.close()
@@ -338,7 +338,7 @@ CONSUME_EMOJI = "mao"
 LATE_EMOJI = "daddyloh"
 CANCEL_EMOJI = "downmao"
 
-commands = [Consume(), CollegeChants(), RandomMao(), Cowsay(), Roll(), Kenobi(), Wack(), Quote(), GetQuote()]
+commands = [Consume(), CollegeChants(), Cowsay(), Roll(), Kenobi(), Wack(), Quote(), GetQuote(), RandomMao()]
 
 def get_consumption_by_message(message):
     for con in consumptions:
