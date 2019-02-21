@@ -3,6 +3,7 @@ import discord
 import random
 import cowsay
 import re
+import asyncio
 from pytz import timezone
 from datetime import datetime
 from io import StringIO
@@ -154,7 +155,30 @@ class RandomMao(Command):
             await client.add_reaction(message, emoji)
         if random.random() < .05:
             await client.send_typing(message.channel)
-
+        if message.channel.name == "general" and random.random()< .005:
+            quoteFile = open("chairman.txt", "r", -1, "utf-8")
+            quoteString = quoteFile.read()
+            quoteFile.close()
+            quotes = quoteString.split("\n\n")
+            randQuote = random.choice(quotes)
+            splitQuote = randQuote.split(" ")
+            users = [user for user in client.get_all_members()]
+            random.shuffle(users)
+            for i in range(len(splitQuote)):
+                if splitQuote[i] == "@user":
+                    newUser = users.pop()
+                    if newUser == client.user:
+                        newUser = users.pop()
+                    splitQuote[i] = "<@!"+newUser.id+">"
+            quote = " ".join(splitQuote)
+            await client.send_typing(message.channel)
+            await asyncio.sleep(5)
+            await client.send_typing(message.channel)
+            await asyncio.sleep(5)
+            await client.send_typing(message.channel)
+            await asyncio.sleep(5)
+            await client.send_message(message.channel, quote)
+            
 class Cowsay(Command):
 
     async def on_message(self, message):
@@ -352,7 +376,7 @@ CONSUME_EMOJI = "mao"
 LATE_EMOJI = "daddyloh"
 CANCEL_EMOJI = "downmao"
 
-commands = [Consume(), CollegeChants(), RandomMao(), Cowsay(), Roll(), Kenobi(), Wack(), Quote(), GetQuote(), Points()]
+commands = [Consume(), CollegeChants(), Cowsay(), Roll(), Kenobi(), Wack(), Quote(), GetQuote(), Points(), RandomMao()]
 
 def get_consumption_by_message(message):
     for con in consumptions:
