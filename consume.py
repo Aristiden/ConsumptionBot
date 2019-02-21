@@ -52,6 +52,8 @@ class Consume(Command):
                 await client.add_reaction(consumptions[-1].message, late_emoji)
                 await client.delete_message(message)
                 t = parse_time(args[0])
+                if t==None:
+                    return
                 await asyncio.sleep(t)
                 if get_consumption_by_message(consumption.message)==None:
                     return
@@ -59,7 +61,9 @@ class Consume(Command):
                 msg = ""
                 for consumer in consumers:
                     msg+="<@!"+consumer.id+"> "
-                msg+="\nIt's time to consume at "+consumption.location+"\n"+consumption.comment
+                msg+="\nIt's time to consume"
+                if len(consumption.location) >=1:
+                    msg+=" at "+consumption.location+"\n"+consumption.comment
                 await client.send_message(message.channel, msg)
 
     async def on_reaction_add(self, reaction, user):
@@ -367,9 +371,12 @@ def line_prepender(filename, line):
         f.write(line + '\n' + content)
 
 def parse_time(t):
-    if t.lower().endswith("m"):
-        return (datetime.strptime(t, "%I:%M%p")-datetime.strptime(datetime.now().strftime("%H:%M:%S%p"), "%H:%M:%S%p")).total_seconds()
-    else:
-        return (datetime.strptime(t, "%H:%M")-datetime.strptime(datetime.now().strftime("%H:%M:%S%p"), "%H:%M:%S%p")).total_seconds()
-
+    try:
+        if t.lower().endswith("m"):
+            return (datetime.strptime(t, "%I:%M%p")-datetime.strptime(datetime.now().strftime("%H:%M:%S%p"), "%H:%M:%S%p")).total_seconds()
+        else:
+            return (datetime.strptime(t, "%H:%M")-datetime.strptime(datetime.now().strftime("%H:%M:%S%p"), "%H:%M:%S%p")).total_seconds()
+    except:
+        return None
+        
 client.run(TOKEN)
