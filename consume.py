@@ -270,12 +270,18 @@ class Consumption:
         self.location = location
         self.comment = comment
         self.lates = []
+        self.messageOwner = False
+
 
     def add_consumer(self, consumer):
         if (consumer == client.user):
             return
         self.consumers.append(consumer)
         self.consumers = list(set(self.consumers))
+        if (self.messageOwner == False):
+            self.messageOwner = True
+            (self.author).send("Someone has joined your consumption!")
+
 
     def add_late_consumer(self, consumer):
         if consumer == client.user:
