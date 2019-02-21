@@ -12,6 +12,9 @@ import sys
 with open('token.txt', 'r') as f:
     TOKEN = f.read().strip()
 
+with open('points.txt', 'r') as f:
+    points = int(f.read().strip())
+
 client = discord.Client(max_messages=100)
 
 class Command:
@@ -51,6 +54,8 @@ class Consume(Command):
                 await client.delete_message(message)
 
     async def on_reaction_add(self, reaction, user):
+        global points
+        
         if user == client.user:
             return
 
@@ -67,6 +72,8 @@ class Consume(Command):
                         consumption.add_consumer(user)
                 else:
                     consumption.add_consumer(user)
+                    if len(consumption.consumers) == 2:
+                        await client.send_message(consumption.author, "Someone has joined your consumption!")
                 await client.edit_message(consumption.message, consumption.print_consumption())
                 if user == consumption.author:
                     await client.remove_reaction(consumption.message, emoji, client.user)
@@ -76,8 +83,14 @@ class Consume(Command):
                     await client.remove_reaction(consumption.message, late_emoji, client.user)
                 await client.edit_message(consumption.message, consumption.print_consumption())
             elif reaction.emoji == cancel_emoji and user == consumption.author:
-                await client.delete_message(consumption.message)
+                new_points = sum([1 for consumer in consumption.consumers]) + sum([1 for consumer in consumption.lates])
+                points += new_points
+                await client.edit_message(consumption.message, "This consumption earned " + str(new_points) +
+                                          " point" + ("" if new_points == 1 else "s") + " for the collective.\nCurrent point total: " + str(points) +
+                                          " point" + ("" if points == 1 else "s") + ".")
                 consumptions.remove(consumption)
+                with open('points.txt', 'w') as f:
+                    f.write(str(points))
                 
     async def on_reaction_remove(self, reaction, user):
         if user == client.user:
@@ -169,9 +182,15 @@ class RandomMao(Command):
 class Cowsay(Command):
 
     async def on_message(self, message):
+        global points
+        
         if message.author == client.user:
             return
         if message.content.lower().startswith("!cowsay"):
+            if points < 1:
+                await client.send_message(message.channel, "Additional consumptions required.")
+                return
+            points -= 1
             say =  " ".join(message.content.split()[1:])
             old_stdout = sys.stdout
             sys.stdout = mystdout = StringIO()
@@ -224,10 +243,16 @@ class Kenobi(Command):
 class Wack(Command):
 
     async def on_message(self, message):
+        global points
+        
         if message.author == client.user:
             return
         if "wack" in message.content.lower():
-            await client.send_file(message.channel, "wack.png")
+            if points >= 1:
+                await client.send_file(message.channel, "wack.png")
+                points -= 1
+            else:
+                await client.send_message(message.channel, "Additional consumptions required.")
 
 class Quote(Command):
     
@@ -284,6 +309,17 @@ class GetQuote(Command):
                 randQuote = "\n".join(randQuote)
                 await client.send_message(message.channel, time+"```"+randQuote+"```")
             
+class Points(Command):
+
+    async def on_message(self, message):
+        global points
+        
+        if message.author == client.user:
+            return
+
+        if message.content.lower().startswith("!points"):
+            msg = "The collective currently has " + str(points) + " point" + ("" if points == 1 else "s") + "."
+            await client.send_message(message.channel, msg)
 
 class Consumption:
 
@@ -295,11 +331,13 @@ class Consumption:
         self.comment = comment
         self.lates = []
 
+
     def add_consumer(self, consumer):
         if (consumer == client.user):
             return
         self.consumers.append(consumer)
         self.consumers = list(set(self.consumers))
+
 
     def add_late_consumer(self, consumer):
         if consumer == client.user:
@@ -338,7 +376,7 @@ CONSUME_EMOJI = "mao"
 LATE_EMOJI = "daddyloh"
 CANCEL_EMOJI = "downmao"
 
-commands = [Consume(), CollegeChants(), Cowsay(), Roll(), Kenobi(), Wack(), Quote(), GetQuote(), RandomMao()]
+commands = [Consume(), CollegeChants(), Cowsay(), Roll(), Kenobi(), Wack(), Quote(), GetQuote(), Points(), RandomMao()]
 
 def get_consumption_by_message(message):
     for con in consumptions:
