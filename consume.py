@@ -156,9 +156,15 @@ class RandomMao(Command):
 class Cowsay(Command):
 
     async def on_message(self, message):
+        global points
+        
         if message.author == client.user:
             return
         if message.content.lower().startswith("!cowsay"):
+            if points < 1:
+                await client.send_message(message.channel, "Additional consumptions required.")
+                return
+            points -= 1
             say =  " ".join(message.content.split()[1:])
             old_stdout = sys.stdout
             sys.stdout = mystdout = StringIO()
@@ -211,10 +217,16 @@ class Kenobi(Command):
 class Wack(Command):
 
     async def on_message(self, message):
+        global points
+        
         if message.author == client.user:
             return
         if "wack" in message.content.lower():
-            await client.send_file(message.channel, "wack.png")
+            if points >= 1:
+                await client.send_file(message.channel, "wack.png")
+                points -= 1
+            else:
+                await client.send_message(message.channel, "Additional consumptions required.")
 
 class Quote(Command):
     
