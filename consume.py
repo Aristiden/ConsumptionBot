@@ -53,10 +53,13 @@ class Consume(Command):
                 await client.delete_message(message)
                 t = parse_time(args[0])
                 await asyncio.sleep(t)
+                if get_consumption_by_message(consumption.message)==None:
+                    return
                 consumers = consumption.get_consumers()
                 msg = ""
                 for consumer in consumers:
                     msg+="<@!"+consumer.id+"> "
+                msg+="\nIt's time to consume at "+consumption.location+"\n"+consumption.comment
                 await client.send_message(message.channel, msg)
 
     async def on_reaction_add(self, reaction, user):
@@ -364,6 +367,9 @@ def line_prepender(filename, line):
         f.write(line + '\n' + content)
 
 def parse_time(t):
-    return int(t)
+    if t.lower().endswith("m"):
+        return (datetime.strptime(t, "%I:%M%p")-datetime.strptime(datetime.now().strftime("%H:%M:%S%p"), "%H:%M:%S%p")).total_seconds()
+    else:
+        return (datetime.strptime(t, "%H:%M")-datetime.strptime(datetime.now().strftime("%H:%M:%S%p"), "%H:%M:%S%p")).total_seconds()
 
 client.run(TOKEN)
