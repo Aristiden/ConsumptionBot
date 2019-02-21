@@ -23,7 +23,7 @@ Mitchell - "Would you like my thin, wide child?"
 Mitchell - *Hands Nathan a fork* Here, I couldn't find a knife." Nathan - "Wha-" Mitchell - "e = pi = 3." Nathan - *Stabs*
 
 20 Feb 2019, 11:19PM
-Mitchell - *pulling up Michelle's fitted sheet* I'm helping. Sahil - "Mitchell!" Mitchell - "I'M HELPING."
+Mitchell - *pulling up Michelle's fitted sheet* I'm helping. Sahil - "Mitchell!" Mitchell - "I'M HELPING"
 
 18 Feb 2019, 4:34pm
 Mitchell - “I talk about E2 the way I assume my elementary school teachers talked about me”
@@ -719,6 +719,7 @@ Mitchell- “That would be cheating”
 17 Sep 2018, 12:30am
 Olivia - “I’m better at harassing [Mitchell] than you [Nathan H]”
 Mitchell - “Yeah, you need to work on your harassing skills”
+<<<<<<< HEAD
 king problem, but you're not sure. What should you watch for?"
 Michelle- "A drinking problem?"
 
@@ -734,3 +735,5 @@ Mitchell- “That would be cheating”
 17 Sep 2018, 12:30am
 Olivia - “I’m better at harassing [Mitchell] than you [Nathan H]”
 Mitchell - “Yeah, you need to work on your harassing skills”
+=======
+>>>>>>> b49e7a7d3fbd466641def592d73cfb3a420c9f8e
