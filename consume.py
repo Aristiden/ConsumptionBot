@@ -10,7 +10,7 @@ import sys
 with open('token.txt', 'r') as f:
     TOKEN = f.read().strip()
 
-client = discord.Client()
+client = discord.Client(max_messages=100)
 
 class Command:
 
