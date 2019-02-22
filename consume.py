@@ -106,8 +106,7 @@ class Consume(Command):
                 new_points = sum([1 for consumer in consumption.consumers]) + sum([1 for consumer in consumption.lates])
                 points += new_points
                 await client.edit_message(consumption.message, "This consumption earned " + str(new_points) +
-                                          " point" + ("" if new_points == 1 else "s") + " for the collective.\nCurrent point total: " + str(points) +
-                                          " point" + ("" if points == 1 else "s") + ".")
+                                          " point" + ("" if new_points == 1 else "s") + " for the collective.")
                 consumptions.remove(consumption)
                 with open('points.txt', 'w') as f:
                     f.write(str(points))
