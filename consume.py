@@ -222,6 +222,7 @@ class Cowsay(Command):
                     msg = msg[:i + 1] + '\\\n' + ((7 + (len(say) if len(say) < 49 else 49) - 2) * ' ') + msg[i + 1:]
                     break
             await client.send_message(message.channel, msg)
+            update_points()
 
 class Roll(Command):
 
@@ -338,8 +339,13 @@ class Points(Command):
             return
 
         if message.content.lower().startswith("!points"):
-            msg = "The collective currently has " + str(points) + " point" + ("" if points == 1 else "s") + "."
-            await client.send_message(message.channel, msg)
+            if points >= 1:
+                points -= 1
+                msg = "The collective currently has " + str(points) + " point" + ("" if points == 1 else "s") + "."
+                await client.send_message(message.channel, msg)
+                update_points()
+            else:
+                await client.send_message(message.channel, "Additional consumptions required.")
 
 class Consumption:
 
@@ -452,5 +458,10 @@ def parse_time(t):
 
 def not_self(message):
     return message.author != client.user
+
+def update_points():
+    global points
+    with open('points.txt', 'w') as f:
+        f.write(str(points))
         
 client.run(TOKEN)
