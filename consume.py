@@ -229,8 +229,10 @@ class Cowsay(Command):
             await client.send_message(message.channel, msg)
             
 class Roll(Command):
-
+    
     async def on_message(self, message):
+        global points
+        
         if message.author == client.user:
             return
         if message.content.lower().startswith("!roll"):
@@ -252,7 +254,24 @@ class Roll(Command):
                     if roll == 1:
                         msg += " Sucks to be you."
                     elif roll == die:
-                        msg += " Crit!"                    
+                        msg += " Crit!"
+                    if message.channel.name !="dnd":
+                        if points>=1:
+                            if roll == 1:
+                                msg += " Up to "+str(die)+" points used."
+                                points-=die
+                                if points < 0:
+                                    points = 0
+                            elif roll == die:
+                                msg += " "+str(die)+" points gained."
+                                points+=die
+                            else:
+                                msg += " 1 point used."
+                                points-=die
+                            update_points()
+                        else:
+                            await client.send_message(message.channel, "More consumptions required.")
+                            return
             except ValueError:
                 msg = "Please input a number next time."
             await client.send_message(message.channel, msg)
