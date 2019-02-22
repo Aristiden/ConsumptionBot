@@ -103,7 +103,7 @@ class Consume(Command):
                 if len(consumption.lates) > 0:
                     await client.remove_reaction(consumption.message, late_emoji, client.user)
                 await client.edit_message(consumption.message, consumption.print_consumption())
-            elif reaction.emoji == cancel_emoji and user == consumption.author:
+            elif reaction.emoji == cancel_emoji and user.id == consumption.author.id:
                 if consumption.started:
                     new_points = sum([1 for consumer in consumption.consumers]) + sum([1 for consumer in consumption.lates])
                     points += new_points
