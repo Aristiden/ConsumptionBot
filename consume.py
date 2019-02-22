@@ -3,6 +3,7 @@ import discord
 import random
 import cowsay
 import re
+import time
 import asyncio
 from pytz import timezone
 from datetime import datetime
@@ -44,14 +45,30 @@ class Consume(Command):
                 msg = "Consumption syntax: !consume <time> [location] [comment]"
                 await client.send_message(message.channel, msg)
             else:
+                t = parse_time(args[0])
+                if t==None:
+                    await client.send_message(message.channel, "Invalid time")
+                    return
                 consumptions.append(Consumption(message.author, args[0], location=(args[1] if len(args) >= 2 else ""), comment = (" ".join(args[2:]) if len(args) >= 3 else "")))
                 msg = consumptions[-1].print_consumption()
                 consumptions[-1].add_message(await client.send_message(message.channel, msg))
+                consumption = consumptions[-1]
                 emoji = discord.utils.get(client.get_all_emojis(), name=CONSUME_EMOJI)
                 late_emoji = discord.utils.get(client.get_all_emojis(), name=LATE_EMOJI)
                 await client.add_reaction(consumptions[-1].message, emoji)
                 await client.add_reaction(consumptions[-1].message, late_emoji)
                 await client.delete_message(message)
+                await asyncio.sleep(t)
+                if get_consumption_by_message(consumption.message)==None:
+                    return
+                consumers = consumption.get_consumers()
+                msg = ""
+                for consumer in consumers:
+                    msg+="<@!"+consumer.id+"> "
+                msg+="\nIt's time to consume"
+                if len(consumption.location) >=1:
+                    msg+=" at "+consumption.location+"\n"+consumption.comment
+                await client.send_message(message.channel, msg)
 
     async def on_reaction_add(self, reaction, user):
         global points
@@ -368,6 +385,9 @@ class Consumption:
     def add_message(self, message):
         self.message = message
 
+    def get_consumers(self):
+        return self.consumers
+
 consumptions = []
 
 REPLACEMENTS = {"my": "our", "i": "we", "me": "us", "mine": "ours"}
@@ -412,4 +432,19 @@ def line_prepender(filename, line):
         f.seek(0, 0)
         f.write(line + '\n' + content)
 
+def parse_time(t):
+    try:
+        parts = t.split(":")
+        h = int(parts[0])
+        m = int(parts[1][:2])
+        ch = datetime.now().hour%12
+        cm = datetime.now().minute
+        hours = (h+m/60)-(ch+cm/60)
+        if hours<0:
+            hours+=12
+        seconds = hours*60*60
+        return seconds
+    except:
+        return None
+        
 client.run(TOKEN)
