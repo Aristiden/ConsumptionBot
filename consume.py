@@ -57,9 +57,9 @@ class Consume(Command):
                 consumption = consumptions[-1]
                 emoji = discord.utils.get(client.get_all_emojis(), name=CONSUME_EMOJI)
                 late_emoji = discord.utils.get(client.get_all_emojis(), name=LATE_EMOJI)
+                cancel_emoji = discord.utils.get(client.get_all_emojis(), name=CANCEL_EMOJI)
                 await client.add_reaction(consumptions[-1].message, emoji)
                 await client.add_reaction(consumptions[-1].message, late_emoji)
-                await client.delete_message(message)
                 await asyncio.sleep(t)
                 if get_consumption_by_message(consumption.message)==None:
                     return
@@ -70,7 +70,9 @@ class Consume(Command):
                 msg+="\nIt's time to consume"
                 if len(consumption.location) >=1:
                     msg+=" at "+consumption.location+"\n"+consumption.comment
+                consumption.started = True
                 await client.send_message(message.channel, msg)
+                await client.add_reaction(consumption.message, cancel_emoji)
 
     async def on_reaction_add(self, reaction, user):
         global points
@@ -101,15 +103,18 @@ class Consume(Command):
                 if len(consumption.lates) > 0:
                     await client.remove_reaction(consumption.message, late_emoji, client.user)
                 await client.edit_message(consumption.message, consumption.print_consumption())
-            elif reaction.emoji == cancel_emoji and user == consumption.author:
-                new_points = sum([1 for consumer in consumption.consumers]) + sum([1 for consumer in consumption.lates])
-                points += new_points
-                await client.edit_message(consumption.message, "This consumption earned " + str(new_points) +
-                                          " point" + ("" if new_points == 1 else "s") + " for the collective.\nCurrent point total: " + str(points) +
-                                          " point" + ("" if points == 1 else "s") + ".")
-                consumptions.remove(consumption)
-                with open('points.txt', 'w') as f:
-                    f.write(str(points))
+            elif reaction.emoji == cancel_emoji and user.id == consumption.author.id:
+                if consumption.started:
+                    new_points = sum([1 for consumer in consumption.consumers]) + sum([1 for consumer in consumption.lates])
+                    points += new_points
+                    await client.edit_message(consumption.message, "This consumption earned " + str(new_points) +
+                                              " point" + ("" if new_points == 1 else "s") + " for the collective.")
+                    consumptions.remove(consumption)
+                    with open('points.txt', 'w') as f:
+                        f.write(str(points))
+                else:
+                    await client.edit_message(consumption.message, "Consumption canceled.")
+                    consumptions.remove(consumption)
                 
     async def on_reaction_remove(self, reaction, user):
         if user == client.user:
@@ -210,6 +215,7 @@ class Cowsay(Command):
                 await client.send_message(message.channel, "Additional consumptions required.")
                 return
             points -= 1
+            update_points()
             say =  " ".join(message.content.split()[1:])
             old_stdout = sys.stdout
             sys.stdout = mystdout = StringIO()
@@ -221,10 +227,12 @@ class Cowsay(Command):
                     msg = msg[:i + 1] + '\\\n' + ((7 + (len(say) if len(say) < 49 else 49) - 2) * ' ') + msg[i + 1:]
                     break
             await client.send_message(message.channel, msg)
-
+            
 class Roll(Command):
-
+    
     async def on_message(self, message):
+        global points
+        
         if message.author == client.user:
             return
         if message.content.lower().startswith("!roll"):
@@ -246,7 +254,24 @@ class Roll(Command):
                     if roll == 1:
                         msg += " Sucks to be you."
                     elif roll == die:
-                        msg += " Crit!"                    
+                        msg += " Crit!"
+                    if message.channel.name !="dnd":
+                        if points>=1:
+                            if roll == 1:
+                                msg += "\nUp to "+str(die)+" points used."
+                                points-=die
+                                if points < 0:
+                                    points = 0
+                            elif roll == die:
+                                msg += "\n"+str(die)+" points gained."
+                                points+=die
+                            else:
+                                msg += "\n1 point used."
+                                points-=1
+                            update_points()
+                        else:
+                            await client.send_message(message.channel, "More consumptions required.")
+                            return
             except ValueError:
                 msg = "Please input a number next time."
             await client.send_message(message.channel, msg)
@@ -270,6 +295,7 @@ class Wack(Command):
             if points >= 1:
                 await client.send_file(message.channel, "wack.png")
                 points -= 1
+                update_points()
             else:
                 await client.send_message(message.channel, "Additional consumptions required.")
 
@@ -337,8 +363,13 @@ class Points(Command):
             return
 
         if message.content.lower().startswith("!points"):
-            msg = "The collective currently has " + str(points) + " point" + ("" if points == 1 else "s") + "."
-            await client.send_message(message.channel, msg)
+            if points >= 1:
+                points -= 1
+                msg = "The collective currently has " + str(points) + " point" + ("" if points == 1 else "s") + "."
+                await client.send_message(message.channel, msg)
+                update_points()
+            else:
+                await client.send_message(message.channel, "Additional consumptions required.")
 
 class Consumption:
 
@@ -349,6 +380,7 @@ class Consumption:
         self.location = location
         self.comment = comment
         self.lates = []
+        self.started = False
 
 
     def add_consumer(self, consumer):
@@ -451,5 +483,10 @@ def parse_time(t):
 
 def not_self(message):
     return message.author != client.user
+
+def update_points():
+    global points
+    with open('points.txt', 'w') as f:
+        f.write(str(points))
         
 client.run(TOKEN)
