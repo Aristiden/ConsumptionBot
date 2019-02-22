@@ -70,6 +70,7 @@ class Consume(Command):
                 msg+="\nIt's time to consume"
                 if len(consumption.location) >=1:
                     msg+=" at "+consumption.location+"\n"+consumption.comment
+                consumption.started = True
                 await client.send_message(message.channel, msg)
                 await client.add_reaction(consumption.message, cancel_emoji)
 
@@ -103,13 +104,17 @@ class Consume(Command):
                     await client.remove_reaction(consumption.message, late_emoji, client.user)
                 await client.edit_message(consumption.message, consumption.print_consumption())
             elif reaction.emoji == cancel_emoji and user == consumption.author:
-                new_points = sum([1 for consumer in consumption.consumers]) + sum([1 for consumer in consumption.lates])
-                points += new_points
-                await client.edit_message(consumption.message, "This consumption earned " + str(new_points) +
-                                          " point" + ("" if new_points == 1 else "s") + " for the collective.")
-                consumptions.remove(consumption)
-                with open('points.txt', 'w') as f:
-                    f.write(str(points))
+                if consumption.started:
+                    new_points = sum([1 for consumer in consumption.consumers]) + sum([1 for consumer in consumption.lates])
+                    points += new_points
+                    await client.edit_message(consumption.message, "This consumption earned " + str(new_points) +
+                                              " point" + ("" if new_points == 1 else "s") + " for the collective.")
+                    consumptions.remove(consumption)
+                    with open('points.txt', 'w') as f:
+                        f.write(str(points))
+                else:
+                    await client.edit_message(consumption.message, "Consumption canceled.")
+                    consumptions.remove(consumption)
                 
     async def on_reaction_remove(self, reaction, user):
         if user == client.user:
@@ -355,6 +360,7 @@ class Consumption:
         self.location = location
         self.comment = comment
         self.lates = []
+        self.started = False
 
 
     def add_consumer(self, consumer):
