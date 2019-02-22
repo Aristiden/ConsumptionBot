@@ -258,16 +258,16 @@ class Roll(Command):
                     if message.channel.name !="dnd":
                         if points>=1:
                             if roll == 1:
-                                msg += " Up to "+str(die)+" points used."
+                                msg += "\nUp to "+str(die)+" points used."
                                 points-=die
                                 if points < 0:
                                     points = 0
                             elif roll == die:
-                                msg += " "+str(die)+" points gained."
+                                msg += "\n"+str(die)+" points gained."
                                 points+=die
                             else:
-                                msg += " 1 point used."
-                                points-=die
+                                msg += "\n1 point used."
+                                points-=1
                             update_points()
                         else:
                             await client.send_message(message.channel, "More consumptions required.")
