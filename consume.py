@@ -475,6 +475,8 @@ def parse_time(t):
         cm = datetime.now().minute
         cs = datetime.now().second
         hours = (h+m/60)-(ch+cm/60+cs/60/60)
+        if abs(hours)<1/60:
+            return 0
         if hours<0:
             hours+=12
         seconds = hours*60*60
