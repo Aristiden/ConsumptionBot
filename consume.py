@@ -42,6 +42,10 @@ class Consume(Command):
                 msg = "Consumption syntax: !consume <time> [location] [comment]"
                 await client.send_message(message.channel, msg)
             else:
+                t = parse_time(args[0])
+                if t==None:
+                    await client.send_message(message.channel, "Invalid time")
+                    return
                 consumptions.append(Consumption(message.author, args[0], location=(args[1] if len(args) >= 2 else ""), comment = (" ".join(args[2:]) if len(args) >= 3 else "")))
                 msg = consumptions[-1].print_consumption()
                 consumptions[-1].add_message(await client.send_message(message.channel, msg))
@@ -51,9 +55,6 @@ class Consume(Command):
                 await client.add_reaction(consumptions[-1].message, emoji)
                 await client.add_reaction(consumptions[-1].message, late_emoji)
                 await client.delete_message(message)
-                t = parse_time(args[0])
-                if t==None:
-                    return
                 await asyncio.sleep(t)
                 if get_consumption_by_message(consumption.message)==None:
                     return
@@ -372,10 +373,16 @@ def line_prepender(filename, line):
 
 def parse_time(t):
     try:
-        if t.lower().endswith("m"):
-            return (datetime.strptime(t, "%I:%M%p")-datetime.strptime(datetime.now().strftime("%H:%M:%S%p"), "%H:%M:%S%p")).total_seconds()
-        else:
-            return (datetime.strptime(t, "%H:%M")-datetime.strptime(datetime.now().strftime("%H:%M:%S%p"), "%H:%M:%S%p")).total_seconds()
+        parts = t.split(":")
+        h = int(parts[0])
+        m = int(parts[1][:2])
+        ch = datetime.now().hour%12
+        cm = datetime.now().minute
+        hours = (h+m/60)-(ch+cm/60)
+        if hours<0:
+            hours+=12
+        seconds = hours*60*60
+        return seconds
     except:
         return None
         
