@@ -57,9 +57,9 @@ class Consume(Command):
                 consumption = consumptions[-1]
                 emoji = discord.utils.get(client.get_all_emojis(), name=CONSUME_EMOJI)
                 late_emoji = discord.utils.get(client.get_all_emojis(), name=LATE_EMOJI)
+                cancel_emoji = discord.utils.get(client.get_all_emojis(), name=CANCEL_EMOJI)
                 await client.add_reaction(consumptions[-1].message, emoji)
                 await client.add_reaction(consumptions[-1].message, late_emoji)
-                await client.delete_message(message)
                 await asyncio.sleep(t)
                 if get_consumption_by_message(consumption.message)==None:
                     return
@@ -71,6 +71,7 @@ class Consume(Command):
                 if len(consumption.location) >=1:
                     msg+=" at "+consumption.location+"\n"+consumption.comment
                 await client.send_message(message.channel, msg)
+                await client.add_reaction(consumption.message, cancel_emoji)
 
     async def on_reaction_add(self, reaction, user):
         global points
