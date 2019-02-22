@@ -215,6 +215,7 @@ class Cowsay(Command):
                 await client.send_message(message.channel, "Additional consumptions required.")
                 return
             points -= 1
+            update_points()
             say =  " ".join(message.content.split()[1:])
             old_stdout = sys.stdout
             sys.stdout = mystdout = StringIO()
@@ -226,8 +227,7 @@ class Cowsay(Command):
                     msg = msg[:i + 1] + '\\\n' + ((7 + (len(say) if len(say) < 49 else 49) - 2) * ' ') + msg[i + 1:]
                     break
             await client.send_message(message.channel, msg)
-            update_points()
-
+            
 class Roll(Command):
 
     async def on_message(self, message):
@@ -276,6 +276,7 @@ class Wack(Command):
             if points >= 1:
                 await client.send_file(message.channel, "wack.png")
                 points -= 1
+                update_points()
             else:
                 await client.send_message(message.channel, "Additional consumptions required.")
 
