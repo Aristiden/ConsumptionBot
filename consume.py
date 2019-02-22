@@ -34,7 +34,9 @@ class Consume(Command):
     async def on_message(self, message):
         if message.author == client.user:
             return
-
+        if message.channel.name == "consumption":
+            await client.purge_from(message.channel, limit=100, check=not_self)
+            
         if message.content.startswith('!consume') and (message.channel.name == 'consumption' or message.channel.name == 'bot-testing'):
             if '@' in message.content:
                 msg = "Hey don't do that"
@@ -446,5 +448,8 @@ def parse_time(t):
         return seconds
     except:
         return None
+
+def not_self(message):
+    return message.author != client.user
         
 client.run(TOKEN)
