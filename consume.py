@@ -243,28 +243,44 @@ class Roll(Command):
                     msg = "Syntax is !roll d<number>."
                     await client.send_message(message.channel, msg)
                     return
-                if die_str[0] == 'd':
-                    die_str = die_str[1:]
-                die = int(die_str)
-                if die < 1:
+                amount = 1
+                die_parts = die_str.split("d")
+                if len(die_parts) >= 2:
+                    amount = int(die_parts[0])
+                    die = int(die_parts[1])
+                else:
+                    die = int(die_parts[0])
+                if amount>1000:
+                    msg = "Too many dice. They fell out of my hand."
+                elif die < 1 or amount < 1:
                     msg = die + " is not a die."
                 else:
-                    roll = random.randint(1, die)
+                    roll = 0
+                    roll_str = "("
+                    for i in range(amount):
+                        t_roll = random.randint(1, die)
+                        roll += t_roll
+                        roll_str += str(t_roll)
+                        if i!=amount-1:
+                            roll_str+= "+"
+                    roll_str += ")"
                     msg = "It's " + str(roll) + "."
-                    if roll == 1:
+                    if amount>1:
+                        msg+= " "+roll_str
+                    if roll == amount:
                         msg += " Sucks to be you."
-                    elif roll == die:
+                    elif roll == amount*die:
                         msg += " Crit!"
                     if message.channel.name !="dnd":
                         if points>=1:
-                            if roll == 1:
-                                msg += "\nUp to "+str(die)+" points used."
-                                points-=die
+                            if roll == amount:
+                                msg += "\nUp to "+str(die*amount)+" points used."
+                                points-=die*amount
                                 if points < 0:
                                     points = 0
-                            elif roll == die:
-                                msg += "\n"+str(die)+" points gained."
-                                points+=die
+                            elif roll == amount*die:
+                                msg += "\n"+str(die*amount)+" points gained."
+                                points+=die*amount
                             else:
                                 msg += "\n1 point used."
                                 points-=1
@@ -274,7 +290,10 @@ class Roll(Command):
                             return
             except ValueError:
                 msg = "Please input a number next time."
-            await client.send_message(message.channel, msg)
+            try:
+                await client.send_message(message.channel, msg)
+            except:
+                await client.send_message(message.channel, msg.replace(roll_str, ""))
 
 class Kenobi(Command):
 
