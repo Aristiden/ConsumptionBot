@@ -372,6 +372,53 @@ class GetQuote(Command):
                 randQuote.pop(0)
                 randQuote = "\n".join(randQuote)
                 await client.send_message(message.channel, time+"```"+randQuote+"```")
+
+class Lootbox(Command):
+
+    async def on_message(self, message):
+        global points
+
+        if message.author == client.user:
+            return
+        if message.content.upper().startswith('!lootbox'):
+            if points >= 3:
+                msg = "Lootbox purchased for 3 point.\nOpening box..."
+                await client.send_file(message.channel, "lootbox.gif")
+                points -= 3
+                roll = random.randint(1,100)
+                if roll<=10:
+                    msg = "The lootbox is empty."
+                elif roll<=40:
+                    msg = "The lootbox contains 1 point."
+                    points+=1
+                elif roll<=65:
+                    msg = "The lootbox contains 2 points."
+                    points+=2
+                elif roll<=80:
+                    msg = "The lootbox contains 3 points."
+                    points+=3
+                elif roll<=90:
+                    msg = "The lootbox contains 4 points."
+                    points+=4
+                else:
+                    msg = "The lootbox contains a cosmetic item!"
+                    randline = random.choice([2,3,4,5,6,7,8,9,11,12,13,14,16,17,18,20,21)
+                    cos = open("cosmetics.txt","r")
+                    cosmetics = cos.readlines()
+                    cosmetics2 = cosmetics[randline].split(" ")
+                    if cosmetics2[0]==1:
+                        msg = "It was a duplicate. You get 2 points back."
+                        points+=2
+                    else:
+                        msg = cosmetics2[1]," was collected."
+                        cos = open("cosmetics.txt","w")
+                        cosmetics2[0] = 1
+                        cosmetics[randline] = cosmetics2
+                        cos.writelines( cosmetics )
+                        cos.close()
+                update_points()
+            else:
+                await client.send_message(message.channel, "Additional consumptions required.")
             
 class Points(Command):
 
