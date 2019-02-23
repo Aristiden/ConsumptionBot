@@ -250,13 +250,21 @@ class Roll(Command):
                     die = int(die_parts[1])
                 else:
                     die = int(die_parts[0])
-                if die < 1 or amount < 1:
+                if amount>1000:
+                    msg = "Too many dice. They fell out of my hand."
+                elif die < 1 or amount < 1:
                     msg = die + " is not a die."
                 else:
                     roll = 0
+                    roll_str = "("
                     for i in range(amount):
-                        roll += random.randint(1, die)
-                    msg = "It's " + str(roll) + "."
+                        t_roll = random.randint(1, die)
+                        roll += t_roll
+                        roll_str += str(t_roll)
+                        if i!=amount-1:
+                            roll_str+= "+"
+                    roll_str += ")"
+                    msg = "It's " + str(roll) + ". "+roll_str
                     if roll == amount:
                         msg += " Sucks to be you."
                     elif roll == amount*die:
@@ -280,7 +288,10 @@ class Roll(Command):
                             return
             except ValueError:
                 msg = "Please input a number next time."
-            await client.send_message(message.channel, msg)
+            try:
+                await client.send_message(message.channel, msg)
+            except:
+                await client.send_message(message.channel, msg.replace(roll_str, ""))
 
 class Kenobi(Command):
 
