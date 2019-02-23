@@ -264,7 +264,9 @@ class Roll(Command):
                         if i!=amount-1:
                             roll_str+= "+"
                     roll_str += ")"
-                    msg = "It's " + str(roll) + ". "+roll_str
+                    msg = "It's " + str(roll) + "."
+                    if amount>1:
+                        msg+= " "+roll_str
                     if roll == amount:
                         msg += " Sucks to be you."
                     elif roll == amount*die:
