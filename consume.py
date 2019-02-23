@@ -245,7 +245,7 @@ class Roll(Command):
                     return
                 amount = 1
                 die_parts = die_str.split("d")
-                if len(die_parts) == 2:
+                if len(die_parts) >= 2:
                     amount = int(die_parts[0])
                     die = int(die_parts[1])
                 else:
