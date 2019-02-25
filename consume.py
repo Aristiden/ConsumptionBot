@@ -402,7 +402,7 @@ class Lootbox(Command):
                     points+=4
                 else:
                     msg = "The lootbox contains a cosmetic item!"
-                    randline = random.choice([2,3,4,5,6,7,8,9,11,12,13,14,16,17,18,20,21)
+                    randline = random.choice([2,3,4,5,6,7,8,9,11,12,13,14,16,17,18,20,21])
                     cos = open("cosmetics.txt","r")
                     cosmetics = cos.readlines()
                     cosmetics2 = cosmetics[randline].split(" ")
@@ -415,7 +415,7 @@ class Lootbox(Command):
                         cosmetics2[0] = 1
                         cosmetics[randline] = cosmetics2
                         cos.writelines( cosmetics )
-                        cos.close()
+                    cos.close()
                 update_points()
             else:
                 await client.send_message(message.channel, "Additional consumptions required.")
