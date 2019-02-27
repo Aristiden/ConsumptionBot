@@ -419,6 +419,23 @@ class Lootbox(Command):
                 update_points()
             else:
                 await client.send_message(message.channel, "Additional consumptions required.")
+class GetLoot(Command):
+
+    async def on_message(self, message):
+        global points
+
+        if message.author == client.user:
+            return
+        if message.content.upper().startswith("!loot"):
+            if points>=1:
+                points-=1
+                msg = "1 point spent to peek at my cosmetic items."
+                cos = open("cosmetics.txt","r")
+                cosmetics = cos.readlines()
+                msg = cosmetics
+                cos.close()
+            else:
+                await client.send_message(message.channel, "Additional consumptions required.")                
             
 class Points(Command):
 
