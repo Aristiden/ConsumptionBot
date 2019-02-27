@@ -380,37 +380,45 @@ class Lootbox(Command):
 
         if message.author == client.user:
             return
-        if message.content.upper().startswith('!lootbox'):
+        if message.content.lower().startswith('!lootbox'):
             if points >= 3:
                 msg = "Lootbox purchased for 3 point.\nOpening box..."
+                await client.send_message(message.channel, msg)
                 await client.send_file(message.channel, "lootbox.gif")
                 points -= 3
                 roll = random.randint(1,100)
                 if roll<=10:
                     msg = "The lootbox is empty."
+                    await client.send_message(message.channel, msg)
                 elif roll<=40:
                     msg = "The lootbox contains 1 point."
+                    await client.send_message(message.channel, msg)
                     points+=1
                 elif roll<=65:
                     msg = "The lootbox contains 2 points."
+                    await client.send_message(message.channel, msg)
                     points+=2
                 elif roll<=80:
                     msg = "The lootbox contains 3 points."
+                    await client.send_message(message.channel, msg)
                     points+=3
                 elif roll<=90:
                     msg = "The lootbox contains 4 points."
+                    await client.send_message(message.channel, msg)
                     points+=4
                 else:
-                    msg = "The lootbox contains a cosmetic item!"
+                    await client.send_message(message.channel,"The lootbox contains a cosmetic item!")
                     randline = random.choice([2,3,4,5,6,7,8,9,11,12,13,14,16,17,18,20,21])
                     cos = open("cosmetics.txt","r")
                     cosmetics = cos.readlines()
                     cosmetics2 = cosmetics[randline].split(" ")
                     if cosmetics2[0]==1:
                         msg = "It was a duplicate. You get 2 points back."
+                        await client.send_message(message.channel, msg)
                         points+=2
                     else:
                         msg = cosmetics2[1]," was collected."
+                        await client.send_message(message.channel, msg)
                         cos = open("cosmetics.txt","w")
                         cosmetics2[0] = 1
                         cosmetics[randline] = cosmetics2
@@ -426,13 +434,14 @@ class GetLoot(Command):
 
         if message.author == client.user:
             return
-        if message.content.upper().startswith("!loot"):
+        if message.content.lower().startswith("!loot"):
             if points>=1:
                 points-=1
                 msg = "1 point spent to peek at my cosmetic items."
+                await client.send_message(message.channel, msg)
                 cos = open("cosmetics.txt","r")
                 cosmetics = cos.readlines()
-                msg = cosmetics
+                await client.send_message(message.channel, cosmetics)
                 cos.close()
             else:
                 await client.send_message(message.channel, "Additional consumptions required.")                
